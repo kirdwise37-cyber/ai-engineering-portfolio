@@ -1,8 +1,14 @@
-# FormPilot
+# FormPilot — Windowsデスクトップアプリ
 
-## 概要
+## 現在の位置づけ
 
-Windows向けデスクトップアプリとして、入力データ、Campaign設定、実行キュー、再試行・回復、可観測性を段階的に実装しているプロジェクトです。
+**個人開発・段階実装 / 検証中です。**
+
+Electron / React / SQLite / PostgreSQLを使い、画面だけでなく、永続化、認証、実行キュー、回復、可観測性、Unit Test、E2E、CIまで含めてSoftware Deliveryを検証しています。
+
+## 何を示したいプロジェクトか
+
+AI開発基盤やICPは設計思想が強いプロジェクトなので、FormPilotでは、**実際に動くアプリケーションを、状態・永続化・回復・テストまで含めて段階的に作る**ことを重視しています。
 
 ## 全体像
 
@@ -24,8 +30,6 @@ flowchart LR
     M --> L
 ```
 
-画面だけでなく、**Local保存・認証・状態管理・回復・可観測性・E2Eまで含むSoftware Delivery**を扱っています。
-
 ## 技術
 
 - TypeScript
@@ -35,6 +39,8 @@ flowchart LR
 - PostgreSQL
 - pnpm
 - GitHub Actions
+
+※コード生成・修正はAIへ委譲し、私は要件・設計・実装指示・差分確認・検証・受入を担当しています。
 
 ## 実装済みの主な領域
 
@@ -77,16 +83,18 @@ Phase 5Aでは以下を追加しています。
 
 実プロジェクトで使っているCheckpoint・失敗理由・自動再試行可否の考え方を、依存関係を減らして公開しています。
 
-## 私の役割
+## 私が担っていること
 
 - 製品要件・Phase設計
 - 画面・状態・永続化要件の整理
-- AI支援による実装
+- 実装Taskの分解とChatGPT / Codex / Claudeへの指示
+- 生成された差分の確認
 - migration / authorization / recovery観点の確認
-- unit / E2E / CIの受入
-- 回帰リスクの確認
-- Phase単位でのscope control
+- Unit / E2E / CIの受入
+- 回帰Riskの確認
+- Phase単位でのScope control
+- 実装結果と設計意図の不一致に対する修正方針
 
 ## このプロジェクトで示したいこと
 
-Web APIだけでなく、**デスクトップアプリ・Local保存・認証・状態管理・回復・E2E**を含むSoftware DeliveryもAI支援型で進めています。
+Web APIや設計資料だけでなく、**デスクトップアプリ・Local保存・認証・状態管理・回復・E2Eまで含む実装を、AI支援型の開発プロセスで受け入れ可能な状態まで持っていく**ことを示すためのプロジェクトです。

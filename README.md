@@ -1,123 +1,193 @@
-# AI Engineering Portfolio
+# AI / Data Engineering Portfolio
 
-Claude Code / Codex などのAI開発支援を使いながら、**問題設定・要件整理・設計方針・検証・受入まで自分で責任を持つ**形で開発しています。
+顧客・事業課題を理解し、**要件化 → AI・データを使った実装 → 検証 → 分析 → 意思決定支援**までつなげることをテーマにした個人開発Portfolioです。
 
-主な関心領域は、AIエージェント、情報収集・データ基盤、検索・知識基盤、評価・可観測性、本番運用、意思決定支援です。
+営業、新規事業、プロダクト開発で培った課題理解を起点に、現在はChatGPT / Codex / Claudeを実装手段として使いながら、AI開発基盤、情報収集・分析基盤、デスクトップアプリを設計・開発しています。
 
-## まず見てほしい2つ
+主に、FDE、AIソリューション、応用AI、データ分析・意思決定支援に近い役割を志向しています。
 
-採用選考で短時間に確認いただく場合は、まず以下の2つを見ると開発スタイルが伝わりやすいです。
+## まず見てほしい3つ
 
-### 1. AI Development Foundation / Review・Handoff基盤
+### 1. AI開発基盤 — AIが間違っても工程を壊さない
 
-AIの実装結果を自己申告だけで完了扱いせず、**対象Git Head・変更許可範囲・実際の適用結果を照合し、結果不明時には無闇に再実行しない**仕組みを扱っています。
+AIによる実装速度が上がるほど、指示の過剰解釈、古い前提、未完了の完了判定、セッション断による状態喪失、別AIへの引き継ぎずれが問題になります。
 
-- [プロジェクト詳細](projects/01_ai_development_foundation.md)
+この問題を「AIの注意力」ではなく**開発工程の制御問題**として捉え、強制ゲート、状態管理、証拠に基づく完了判定、回復、複数AI間の安全な引き継ぎを設計しています。
+
+- [AI開発基盤の詳細](projects/01_ai_development_foundation.md)
 - [Python公開コード: AI実装結果の安全な適用](samples/result_apply_guard.py)
 - [Pythonテスト](samples/test_result_apply_guard.py)
 
-### 2. Signal Harvester
+### 2. Intelligence Collection Platform（ICP）— 情報から意思決定まで
 
-複数の情報源から取得した情報を、**履歴・差分・取得証拠・出典情報と一緒に保存し、後から再検証できるデータ基盤**として設計しています。
+世界中の情報、既存Research、蓄積Knowledgeを継続的に集め、根拠・時間・履歴・不足を保ったまま構造化し、**全保有情報を横断して現在の目的・判断に本当に影響する材料へ変換する**基盤を設計・開発しています。
 
-- [プロジェクト詳細](projects/02_signal_harvester.md)
+Signal Harvesterは、その中の収集・Evidence / Provenance・履歴・差分を担う基盤です。ICPではさらに、Coverage、反対材料、不明点、選択肢、再判断条件まで含めて意思決定支援へつなげます。
+
+- [ICPの詳細](projects/02_intelligence_collection_platform.md)
+- [Signal Harvesterの技術詳細](projects/02_signal_harvester.md)
 - [JavaScript公開コード: 取得証拠の検証と再現](samples/evidence_verification.js)
-- [JavaScriptテスト](samples/evidence_verification.test.js)
 
-## 全体像
+### 3. FormPilot — 動くアプリとして届ける
+
+Electron / React / SQLite / PostgreSQLを使ったWindows向けデスクトップアプリです。画面だけでなく、永続化、認証、実行キュー、回復、可観測性、Unit Test、E2E、CIまで含めて段階的に開発しています。
+
+- [FormPilotの詳細](projects/04_formpilot.md)
+- [TypeScript公開コード: 自動処理の再試行ポリシー](samples/automation_retry_policy.ts)
+
+---
+
+## 私が担っていること / AIへ委譲していること
+
+私は、手書きでコードを書くこと自体を主な役割にはしていません。**ChatGPT / Codex / Claudeへコード生成・修正を委譲し、自分は問題設定から受入までの判断を担う**形で開発しています。
+
+### 私が担う範囲
+
+- 顧客・事業課題の整理
+- 最終Goal / KPIの定義
+- 要件・仕様・アーキテクチャ方針
+- 実装タスクの分解と指示
+- Scope・制約・承認条件の定義
+- 生成された差分と実装結果のレビュー
+- Unit / E2E / 回帰テスト観点の設計
+- Git / CI / 実システム状態の読み戻し
+- 不具合の原因切り分けと修正方針
+- 受入可否と次の改善判断
+- データ分析と意思決定への接続
+
+### AIへ委譲する範囲
+
+- コード生成・修正
+- 実装案の作成
+- 調査の補助
+- テストコード作成の補助
+- 別視点でのレビュー
+
+AIが「できました」と返したこと自体は完了証拠にせず、**仕様・差分・テスト・CI・保存先の実状態を確認してから受け入れる**ことを重視しています。
+
+---
+
+## 開発の全体像
 
 ```mermaid
 flowchart LR
-    A[価値ある情報] --> B[Signal Harvester\n収集・正規化・履歴・出典管理]
-    B --> C[検索・知識基盤\n構造化・検索・分析]
-    C --> D[AIエージェント\n推論・実行・意思決定支援]
+    A[顧客・事業課題] --> B[要件・成功条件]
+    B --> C[AI・データを使った実装]
+    C --> D[テスト・実状態確認]
+    D --> E[分析・評価]
+    E --> F[意思決定・次の行動]
+    F --> B
 
-    E[AI開発基盤\n状態管理・検証・回復・CI] --> B
-    E --> C
-    E --> D
-    F[Review / Handoff Platform\n結果の照合・実状態確認] --> E
-    G[FormPilot\nデスクトップアプリ・永続化・回復・E2E] --> E
+    G[AI開発基盤\n強制ゲート・状態・証拠・回復] --> B
+    G --> C
+    G --> D
+    H[ICP\n収集・構造化・横断分析] --> E
+    H --> F
 ```
 
-4つのプロジェクトは別々の実験ではなく、**情報を取得し、構造化し、AIが利用し、本番で安全に動かすために必要な能力を横断して試しているPortfolio**です。
+「何を作るか」「正しく作れたか」「その結果をどう判断に使うか」を別々にせず、一つの流れとして扱うことを目指しています。
 
-## 開発スタイル
+## 代表プロジェクトの位置づけ
 
-詳細な実装やレビュー支援にはClaude Code / Codexを積極的に使っています。
+| プロジェクト | 解いている問題 | 現在の位置づけ | 主に示したい力 |
+|---|---|---|---|
+| [AI開発基盤](projects/01_ai_development_foundation.md) | AI実装のScope逸脱・誤完了・状態喪失・再試行事故 | 個人開発・検証継続中。Loop RuntimeはLocal PoC | 要件、制御設計、検証、回復、複数AI連携 |
+| [ICP](projects/02_intelligence_collection_platform.md) | 情報を集めるだけでなく、根拠を保って判断材料へ変える | 設計・開発中。収集・Corpus基盤を土台に意思決定層を統合中 | データ設計、Coverage、分析、意思決定支援 |
+| [FormPilot](projects/04_formpilot.md) | デスクトップアプリを状態・永続化・回復まで含めて届ける | 段階実装・検証中 | アプリ設計、永続化、認証、E2E、CI |
 
-一方で、以下は自分の責任範囲として扱っています。
+補助的な技術詳細として、[Signal Harvester](projects/02_signal_harvester.md) と [Review / Handoff Platform](projects/03_review_handoff_platform.md) も公開しています。
 
-- 問題設定・要件整理
-- 設計方針・受入条件の定義
-- 実装タスクの分解とAIへの委譲
-- 生成された差分の確認
-- テスト・CI・回帰確認
-- 不具合の原因切り分け
-- 修正方針・受入可否の判断
-- 実装結果と設計意図の整合確認
+---
 
-AIが生成したコードをそのまま採用するのではなく、**仕様・差分・テスト・CI・実際のシステム状態を確認してから受け入れる**ことを重視しています。
+## AI開発基盤で特徴的な「強制ゲート」
 
-## 主要プロジェクト
+単なるチェックリストではなく、**条件を満たさない限り次工程へ進ませない**ことを狙っています。
 
-| プロジェクト | 主なテーマ | 技術・設計上の要点 |
-|---|---|---|
-| [AI Development Foundation / Loop Engineering](projects/01_ai_development_foundation.md) | AI開発基盤・実行制御 | タスク状態、検証、回復、CI、不明時停止、AIレビュー連携 |
-| [Signal Harvester](projects/02_signal_harvester.md) | 情報収集・データ基盤 | GitHub / Hacker News / RSS / Web、正規化、履歴、差分、出典管理、再現 |
-| [Review / Handoff Platform](projects/03_review_handoff_platform.md) | AI実装・レビュー連携 | 入出力の紐付け、GitHub実状態確認、古い結果の拒否、結果不明時の再実行防止 |
-| [FormPilot](projects/04_formpilot.md) | Windowsデスクトップアプリ | Electron / React、SQLite / PostgreSQL、実行キュー、回復、可観測性、E2E |
+```mermaid
+flowchart LR
+    A[最終Goal / KPI] --> B[価値仮説]
+    B --> C[対象 / Scope / 現状]
+    C --> D[ルール / 制約]
+    D --> E[承認]
+    E --> F[実行条件 / リスク]
+    F --> G[理解・実状態の読み戻し]
+    G --> H{条件を満たすか}
+    H -->|NO| I[停止 / 追加確認 / 修正]
+    I --> A
+    H -->|YES| J[実行]
+    J --> K[Evidence]
+    K --> L[Completion]
+```
+
+対象はコード品質だけではありません。最終Goal、Marketing / Brand上の価値仮説、Scope、Rule、Approval、Execution、Readback、Evidence、Completionまでを分けて扱っています。
+
+---
+
+## ICPで重視していること
+
+ICPはニュース一覧やRAGの構築そのものを目的にしていません。
+
+```mermaid
+flowchart LR
+    A[外部情報・Research・蓄積Knowledge] --> B[収集・根拠保存]
+    B --> C[構造化・品質管理]
+    C --> D[全保有情報を横断分析]
+    D --> E[現在のGoal・Constraint・Questionと照合]
+    E --> F[根拠・反対材料・不明点・選択肢]
+    F --> G[意思決定支援]
+    G --> H[次の調査・Follow]
+    H --> B
+```
+
+特に以下を重視しています。
+
+- 最新数件だけでなく、取得基準日時までの利用可能な全保有情報を対象にする
+- Fact / EvidenceとDecisionを別の責任境界として扱う
+- 重複、訂正、独立性、Missing、Coverageを隠さない
+- 取得時刻と情報が扱う出来事の時刻を混同しない
+- 反対材料・代替説明・不明点を残す
+- 「何が分かったか」だけでなく「自分にどう関係するか」「何を選べるか」「何が起きたら考え直すか」まで返す
+
+---
 
 ## 公開コードサンプル
 
-主要プロジェクト本体は非公開ですが、実装内容を確認できるように、実際の実装から本質部分を抜き出した公開用コードを置いています。
+主要プロジェクト本体は非公開ですが、設計思想と検証方法を確認できるよう、公開可能な部分を小さなコードサンプルとして切り出しています。
 
-| サンプル | 言語 | 内容 |
+| サンプル | 技術 | 確認できること |
 |---|---|---|
-| [AI実装結果の安全な適用](samples/result_apply_guard.py) | Python | 対象Git Headの一致確認、変更範囲制限、状態遷移、結果不明時の再実行防止 |
-| [取得証拠の検証と再現](samples/evidence_verification.js) | JavaScript | SHA-256による改ざん検知、引用位置の固定、保存済みデータからの再検証 |
-| [自動処理の再試行ポリシー](samples/automation_retry_policy.ts) | TypeScript | 失敗理由、処理状態、自動再試行・手動確認の判定 |
+| [AI実装結果の安全な適用](samples/result_apply_guard.py) | Python | Git Head照合、変更範囲制限、状態遷移、結果不明時の再実行防止 |
+| [取得証拠の検証と再現](samples/evidence_verification.js) | JavaScript | SHA-256、引用位置、保存済みデータからの再検証 |
+| [自動処理の再試行ポリシー](samples/automation_retry_policy.ts) | TypeScript | 失敗理由、処理状態、自動再試行 / 手動確認の判定 |
 
 詳細: [公開コードサンプルについて](samples/README.md)
 
-## 実装・品質確認の例
+## 検証の例
 
-- AI開発基盤で、レビュー実行の安全性に関するテスト **23 / 23 PASS**
-- 回帰検証で **正常系1件 + 意図的な破壊ケース37件** を検証
-- Signal Harvesterで、履歴・差分・取得証拠・出典情報・ネットワーク再取得なしの再検証を実装
-- Review / Handoff Platformで、古いGit Head・許可範囲外の変更・不正な状態遷移を拒否
-- FormPilotで、型検査 / Lint / Unit Test / Build / 認証付きElectron E2EをCIで検証
-- この公開Portfolio自身でもGitHub Actionsで公開コードサンプルを自動テスト
+- AI開発基盤: 対象Revision、許可範囲、状態遷移、結果不明時の再実行防止などをテスト
+- Signal Harvester: 履歴・差分・取得証拠・Provenance・保存済みデータからの再検証を実装
+- Review / Handoff Platform: 古いGit Head、Scope外変更、不正な状態遷移を拒否する設計・検証
+- FormPilot: Typecheck / Lint / Unit Test / Build / 認証付きElectron E2EをCIで確認
+- この公開Portfolio自体もGitHub Actionsでコードサンプルを自動テスト
 
-## 技術スタック
+## 扱っている技術
 
-- **言語**: Python, TypeScript / JavaScript, SQL
-- **アプリケーション**: Node.js, Electron, React
-- **データベース**: SQLite, PostgreSQL
-- **開発・品質**: Git, GitHub, GitHub Actions, Unit Test, E2E Test, Regression Test
-- **AI開発支援**: Claude Code, Codex
+- Python
+- TypeScript / JavaScript
+- Node.js
+- Electron / React
+- SQLite / PostgreSQL
+- Git / GitHub
+- GitHub Actions
+- Unit Test / E2E / Regression Test
+- ChatGPT / Codex / Claude
 
-## 開発で重視していること
+※上記は、AI支援型の開発で設計・実装指示・差分確認・検証・受入に使用している技術です。手書きコーディング能力を示す一覧ではありません。
 
-### 1. 「動いた」で終わらせない
-正常系だけでなく、状態不整合、結果不明、再試行、障害、権限境界、回帰まで明示的に扱います。
+## このPortfolioで示したいこと
 
-### 2. 後から検証できる証拠を残す
-「実装した」という自己申告だけではなく、テスト、CI、PR、差分、状態遷移、外部システムの実状態などで確認できる形を残します。
+AIやデータを導入すること自体ではなく、
 
-### 3. AI生成コードを鵜呑みにしない
-AI出力は候補実装として扱い、差分・仕様適合・テスト・CIを確認してから受け入れます。
+**課題を理解する → 要件にする → 実装可能な形へ落とす → 検証する → データから判断する → 次の改善へ戻す**
 
-### 4. 単発対応を再利用できる仕組みにする
-その場限りの修正ではなく、共通ルール、検証処理、状態モデル、データ処理、回帰テストへ落とし込むことを意識しています。
-
-## ソースコードについて
-
-主要プロジェクトは非公開リポジトリで継続開発しています。
-
-この公開Portfolioでは、**設計意図・アーキテクチャ・自分の役割・検証結果・公開可能な実装サンプル**を確認できる形にしています。
-
-## 今後深めたい領域
-
-**価値ある情報の収集 → 構造化 → 検索・分析 → AIエージェント → 本番運用 → 意思決定**
-
-まで一貫して扱う、Applied AI / AI Agent / Data Intelligence / FDE領域で、本番環境での実装経験を深めたいと考えています。
+ところまで一貫して扱えることを示したいと考えています。

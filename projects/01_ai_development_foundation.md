@@ -1,113 +1,197 @@
-# AI Development Foundation / Loop Engineering
+# AI開発基盤 — AIが間違っても工程を壊さないための基盤
 
-## 概要
+## 現在の位置づけ
 
-複数のAI開発タスクを、途中終了・状態不明・再実行・レビュー漏れなどに強い形で進めるための共通開発基盤です。
+**個人開発・設計 / 実装 / 検証継続中です。**
 
-単にAIへ依頼を投げるのではなく、
+共通標準、強制ゲート、状態・承認・証拠の契約、Review / Handoffの仕組みを複数Repositoryで開発しています。Loop Runtimeは現在Local PoCであり、本番Runtimeとしての完成や自律的なDeploy / Mergeを主張していません。
 
-**タスク → 計画・承認 → AI実行 → 検証 → レビュー → 結果確認 → 回復・継続**
+## 何を解こうとしているか
 
-を明示的な状態として扱い、AIが途中で終了した場合や結果が不確実な場合でも、安全に再開できることを重視しています。
+ChatGPT / Codex / Claudeを使うと、コード生成そのものは速くなります。一方、実際の開発では別の問題が繰り返し起きます。
+
+- 依頼を過剰解釈し、Scopeが広がる
+- 古い前提や古いRevisionを現在の前提として扱う
+- AIが「完了」と答えたが、Git / CI / 実状態では未完了
+- Sessionが切れ、次のAIが現在地やOwner判断を失う
+- 別AIへ渡した結果が、別のHead / Branch / Taskへ誤適用される
+- 外部書き込みの結果が不明なのに、同じ操作を再実行してしまう
+- 一度起きた失敗が、別Sessionで繰り返される
+
+最初はPromptやChecklistを改善していましたが、繰り返すほど、これは**AIの注意力の問題ではなく開発工程の制御問題**だと考えるようになりました。
+
+そこで、AI自身に「気をつけてもらう」のではなく、AIの外側にGate・State・Evidence・Readbackを置く方向へ設計しています。
 
 ## 全体像
 
 ```mermaid
 flowchart LR
-    A[タスク] --> B[計画・承認]
-    B --> C[AI実行\nCodex / Claude Code]
-    C --> D[テスト・検証]
-    D --> E[レビュー]
-    E --> F{結果を確認できたか}
-    F -->|はい| G[受入・継続]
-    F -->|不明| H[結果不明]
-    H --> I[GitHub等の実状態を再確認]
-    I -->|適用済み| G
-    I -->|未適用| J[安全に再実行]
-    J --> C
-
-    K[GitHub / CI] --> D
-    K --> I
+    A[開発標準・ルール] --> B[強制ゲート]
+    B --> C[Loop Engineering\nTask / Run / Operation]
+    C --> D[実装・テスト]
+    D --> E[Readback / Evidence]
+    E --> F[Completion判定]
+    F --> G[Review / Handoff]
+    G --> H[Recovery / Learning]
+    H --> A
 ```
 
-AI実行そのものよりも、**状態・証拠・検証・回復を含む実行ループ全体**を設計対象にしています。
+一般的なGit / Test / CIに加えて、**AI開発特有のScope逸脱、誤完了、状態喪失、複数AI連携、再試行事故**を制御対象にしています。
 
-## 解きたかった問題
+## 中核1: 強制ゲート
 
-AIに実装を任せると、単純なコード生成以外に次の問題が起きます。
+単に「このルールを守ってください」とPromptに書くのではなく、**条件を満たさない限り次工程へ進ませない**設計を重視しています。
 
-- 実行途中で止まり、どこまで完了したか分からない
-- AIが「完了」と答えてもGitHub側の実状態と一致しない
-- 古いRevisionに対するレビュー結果を誤って現在の結果として扱う
-- 書き込み結果が不明なまま再実行して二重変更する
-- 本来変更してはいけないファイルまで修正対象が広がる
+```mermaid
+flowchart LR
+    A[最終Goal / KPI] --> B[価値仮説]
+    B --> C[対象 / Scope / 現状]
+    C --> D[ルール / 制約]
+    D --> E[承認]
+    E --> F[実行条件 / リスク]
+    F --> G[理解・実状態のReadback]
+    G --> H{条件を満たすか}
+    H -->|NO| I[停止 / 追加確認 / 修正]
+    I --> A
+    H -->|YES| J[実行]
+    J --> K[Evidence]
+    K --> L[Completion]
+```
 
-そこで、**AIの発言ではなく外部システムの実状態を基準に完了を判断する**方向へ設計を寄せています。
+Gateはコード品質だけを確認するものではありません。
 
-## 代表的な設計判断
+- 最終Goal / KPI
+- Marketing / Brand上の価値仮説
+- 対象Repository / Branch / Head / Scope
+- Security / Data / 外部操作等の制約
+- Owner Approvalとその対象
+- 実行直前の条件・Risk
+- AIが理解した内容と実状態のReadback
+- 実行後のEvidence
+- Completion条件
 
-### 1. 対象Revisionを固定する
+までを分けて扱います。
 
-AIへ渡したタスクとGit Headを紐付け、結果を適用する直前にも現在Headを確認します。Headが動いていた場合は、古い結果をそのまま適用しません。
+## 中核2: AIの自己申告を完了証拠にしない
 
-### 2. 変更可能な範囲を先に決める
+AIが「完了しました」と答えても、その発言だけでは完了扱いしません。
 
-タスクごとに変更可能なファイル範囲を持たせ、結果に範囲外の変更が含まれていた場合は止めます。
+確認対象の例:
 
-### 3. 結果不明を成功・失敗へ丸めない
+- Current Git Head
+- 実際の差分
+- Test結果
+- CI結果
+- 保存先のCurrent State
+- Approvalと対象Revisionの一致
+- 必須Artifactの存在
+- 外部操作後のReadback
 
-書き込み要求後に応答が失われた場合などは「結果不明」として扱います。この状態では再実行せず、GitHub側の状態を確認してから次の処理を決めます。
+状態も、単純な「できた / できていない」ではなく、保存・適用・設定・強制・検証を分けて扱います。
 
-### 4. 終了状態は実状態確認から確定する
+```text
+PROPOSED
+→ APPLIED
+→ PERSISTED
+→ CONFIGURED
+→ ENFORCED
+→ VERIFIED
+```
 
-「適用済み」「未適用」といった最終状態を、AIや実行処理の自己申告だけでは直接設定できないようにしています。
+## 中核3: 結果不明を成功・失敗へ丸めない
 
-## 主な実装テーマ
+外部Writeの応答が失われた場合などは、成功とも失敗とも断定しません。
 
-- タスク・実行単位の状態管理
-- 実行制御
-- テスト・回帰検証
-- 再試行・回復・継続
-- 古い結果の検知
-- GitHub連携
-- AIレビュー連携
-- 不明な場合は処理を止める安全設計
-- CIによる継続検証
-- 共通スキル・共通ルール化
+`OUTCOME_UNKNOWN`として保持し、**実状態をReadbackしてから**次を判断します。
 
-## 実装・検証の例
+これにより、結果不明のまま同じWriteを再実行して二重変更する事故を防ぐ設計にしています。
 
-- レビュー実行の安全性に関するテスト: **23 / 23 PASS**
-- 回帰検証: **正常系1件 + 意図的な破壊ケース37件**
-- GitHub Actionsで基盤・実行系の処理を継続検証
-- 対象RevisionとCI結果を紐付け、古い結果を現在の証拠として扱わない
-- 結果不明時に状態確認なしで再実行しない
-- 承認・実行・完了判定の責任範囲を分離
+## 中核4: Sessionをまたいで現在地を復元する
+
+Conversation historyを開発状態の正本にはしません。
+
+長期タスクでは、以下のような情報を会話の外へ保存し、新しいSession / Agentでも復元できる形を目指しています。
+
+- 最終Goalと成功条件
+- 現在Phase
+- Active Task
+- Owner Decision
+- Next Action
+- Approval / Evidence参照
+- Blocker / 未検証事項
+- Repository / Branch / Head
+
+## 中核5: 複数AI間の安全なReview / Handoff
+
+別AIへ渡すときは、文章をコピーするだけでは結果のAuthorityが曖昧になります。
+
+そこで、Task / Repository / Branch / Head / Request / Resultを紐付け、古いRevisionや別TaskのResultを現在のResultとして扱わないことを重視しています。
+
+詳細: [Review / Handoff Platform](03_review_handoff_platform.md)
+
+## 中核6: 失敗を基盤へ戻す
+
+その場の修正で終わらせず、再発可能な失敗は、
+
+```text
+Incident
+→ 原因整理
+→ 一般化
+→ 適切なGate / Rule / Validator / Testへ反映
+→ 別文脈で再検証
+```
+
+という形で共通基盤へ戻すことを狙っています。
+
+「今回直った」と「再発しにくい仕組みにした」を分けて扱います。
+
+## Loop Runtimeで検証していること
+
+現在のLoop RuntimeはLocal PoCです。主に次のような仕組みを検証しています。
+
+- SQLiteによるTask / Run / Operation / Event / Leaseの永続化
+- Repository / Branch / Full HeadへのBinding
+- Approvalを対象OperationへBinding
+- 排他的Leaseと重複Wakeup処理
+- `SAFE_TO_RETRY` と `EFFECT_MAY_HAVE_OCCURRED` の分離
+- `OUTCOME_UNKNOWN`のReadback / Reconciliation
+- Checkpoint / Restore / Corruption時のFail Closed
+- Completion前のCurrent Head再確認
+- 直接的な `RUNNING -> SUCCEEDED` を禁止し、Completion Gateを通す
+- Scheduler / UIをAuthorityにしない分離
+
+本番運用済みRuntimeとしてではなく、**Authority / State / Evidenceをどこへ置けばAI開発を安全に制御できるかを検証するPoC**として扱っています。
 
 ## 公開コードで確認できること
 
 - [Python: AI実装結果の安全な適用](../samples/result_apply_guard.py)
 - [Python: テスト](../samples/test_result_apply_guard.py)
 
-公開版では、実プロジェクトの考え方を小さく切り出し、次の動作を読める形にしています。
+公開用サンプルでは、実プロジェクトから依存関係を減らし、次の考え方を確認できる形にしています。
 
 - Git Headが一致しなければ停止
 - 許可範囲外の変更を拒否
 - 不正な状態遷移を拒否
 - 結果不明のまま再実行しない
-- 実状態確認後にのみ適用済み・未適用を確定
+- 実状態確認後にのみ最終状態を確定
 
-## 私の役割
+## 私が担っていること
 
-- 開発運用上の問題定義
-- 要件・状態モデル・安全境界の設計
-- Codex / Claude Codeへの詳細実装委譲
-- 実装差分の確認
-- テスト・回帰観点の追加
-- CI / GitHub実状態の確認
+- 問題定義
+- 最終Goal / KPI・成功条件の整理
+- Requirement / Architecture / State / Authority設計
+- Gate・Approval・Evidence境界の設計
+- Codex / Claudeへの実装指示とTask分解
+- 生成された差分・Test・CIの確認
+- Git / Current StateのReadback
 - 不具合原因の切り分け
-- 修正方針と受入可否の判断
+- 修正方針・受入可否の判断
+- Incidentを共通Rule / Gateへ戻す判断
+
+コード生成・修正そのものはAIへ委譲しています。
 
 ## このプロジェクトで示したいこと
 
-AIエージェントを実運用する場合、モデル性能だけでなく、**状態・権限・再試行・回復・検証可能な証拠・可観測性**まで含めて設計する必要があると考えています。
+AI開発の価値はモデル性能だけでは決まらず、**目的、Scope、Authority、State、Evidence、Recovery、Completionを外部システムとして設計できるか**でも大きく変わると考えています。
+
+この基盤は「AIを賢くする基盤」というより、**AIが間違っても開発工程を壊しにくくする基盤**です。

@@ -1,4 +1,12 @@
-# Signal Harvester
+# Signal Harvester — ICPのFact / Evidence基盤
+
+## ICPとの関係
+
+Signal Harvesterは、[Intelligence Collection Platform（ICP）](02_intelligence_collection_platform.md)のうち、**Observation / Evidence / Provenance / Signal identityを安全に扱うFact基盤**です。
+
+ICPのCorpusや分析層にデータが存在するだけではCanonical Factとして扱わず、Signal Harvester側の検証・Promotion境界を通して、根拠・履歴・時間・訂正関係を保ったまま扱う設計にしています。
+
+このページでは、ICP全体ではなく**収集・再現・根拠管理の技術詳細**に絞って説明します。
 
 ## 概要
 
@@ -89,16 +97,19 @@ AIや後段処理が使った根拠を、単なる文字列として保存する
 - ネットワークへ再アクセスしない再検証
 - テストで正常系・改変・欠落を確認
 
-## 私の役割
+## 私が担っていること
 
 - 製品要件・仕様設計
 - データ形式・識別子・出典管理方針の設計
-- 実装タスクの分解
-- AI支援による実装
+- 実装Taskの分解とAIへの指示
+- 生成された差分の確認
 - テスト・回帰・再検証観点の設計
-- 差分・CI・動作確認
-- 仕様と実装の不一致修正
+- CI・保存結果・動作の確認
+- 仕様と実装の不一致に対する修正方針
+- ICPの分析・意思決定層とのAuthority境界設計
+
+コード生成・修正そのものはChatGPT / Codex / Claudeへ委譲しています。
 
 ## このプロジェクトで示したいこと
 
-単純なCrawlerではなく、**データ処理基盤・統一形式化・時間情報・出典管理・評価可能なデータ**まで意識して設計・実装しています。
+単純なCrawlerではなく、**データ処理基盤・統一形式化・時間情報・出典管理・評価可能なEvidence**まで意識して設計し、その上にICPの分析・意思決定支援を積み上げています。
