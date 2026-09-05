@@ -1,0 +1,9 @@
+{
+  "artifacts": {
+    "demos/icp/index.html": "52c28647c6e9ab407cb65e9ee5f62d6cc1c5114b3bbbe015361f4f186cbb36fd",
+    "demos/icp/public_snapshot.json": "279c908bc06caac25bc1657975f0c6346a1d9d0076cf63f578ec9bd757b09a31",
+    "projects/05_icp_decision_support.md": "53febfdcf8c2105d67c1f98872587ff24fbcfacd9cfb728283adeb329d75b1ff"
+  },
+  "schema_version": "icp-public-export-manifest-v0.1",
+  "status": "PUBLIC_EXPORT_READY"
+}

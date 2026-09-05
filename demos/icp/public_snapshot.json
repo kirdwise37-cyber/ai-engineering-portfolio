@@ -1,0 +1,103 @@
+{
+  "cases": [
+    {
+      "change_condition": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "counterevidence": [
+        "PUBLIC_COUNTEREVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "decision_support": "Design Pattern Candidate。正式採用済みではありません。",
+      "evidence": [
+        "PUBLIC_EVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "next_evidence": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "title": "AI Security / Sensitive Action Pattern",
+      "unknown": [
+        "Evidence detail: NOT_PUBLISHED_IN_APPROVED_HANDOFF"
+      ]
+    },
+    {
+      "change_condition": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "counterevidence": [
+        "PUBLIC_COUNTEREVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "decision_support": "全面導入推奨ではなく、条件一致時のPoC Candidate。",
+      "evidence": [
+        "PUBLIC_EVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "next_evidence": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "title": "Warehouse Autonomous Drone",
+      "unknown": [
+        "Evidence detail: NOT_PUBLISHED_IN_APPROVED_HANDOFF"
+      ]
+    },
+    {
+      "change_condition": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "counterevidence": [
+        "PUBLIC_COUNTEREVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "decision_support": "Experiment Countだけを成功指標にせず、Closed-loop Improvement / Objective Quality / Physical Executability / Downstream Outcome / Human Intervention / Cross-system Reproducibilityを優先。Broadな未来断定はしません。",
+      "evidence": [
+        "PUBLIC_EVIDENCE_DETAIL_NOT_PROVIDED_IN_APPROVED_HANDOFF"
+      ],
+      "next_evidence": [
+        "UNSTRUCTURED_IN_APPROVED_HANDOFF"
+      ],
+      "title": "Autonomous Lab / AI Research Evaluation",
+      "unknown": [
+        "Evidence detail: NOT_PUBLISHED_IN_APPROVED_HANDOFF"
+      ]
+    }
+  ],
+  "collectors": [
+    {
+      "evaluated": 8,
+      "name": "Global",
+      "saved": 0
+    },
+    {
+      "evaluated": 10,
+      "name": "CV",
+      "saved": 1
+    },
+    {
+      "evaluated": 16,
+      "name": "AI",
+      "saved": 1
+    },
+    {
+      "evaluated": 8,
+      "name": "Historical",
+      "saved": 3
+    }
+  ],
+  "data_trust": {
+    "corpus_total": false,
+    "cross_collector_exact_unique": "NOT_COMPARABLE",
+    "full_window_denominator": "UNKNOWN",
+    "live_or_current": false
+  },
+  "public_safety": {
+    "backend_required": false,
+    "credentials": false,
+    "private_repo_access": false,
+    "raw_feedback": false
+  },
+  "schema_version": "icp-public-snapshot-v0.1",
+  "scope_label": "2026-08-27 Reviewed Slice",
+  "slice_id": "2026-08-27-reviewed-slice",
+  "totals": {
+    "decision_themes": 3,
+    "evaluated": 42,
+    "saved": 5
+  }
+}
